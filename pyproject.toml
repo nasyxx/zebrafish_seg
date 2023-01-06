@@ -1,0 +1,100 @@
+[tool.mypy]
+python_executable = "python"
+ignore_missing_imports = true
+exclude = [
+  "__pypackages__/",
+]
+
+[tool.isort]
+
+profile = "black"
+group_by_package = true
+color_output = true
+combine_straight_imports = true
+
+
+import_heading_stdlib = "Standard Library"
+
+
+known_db = ["lucene", "lupyne", "elasticsearch", "sqlite", "shelve"]
+import_heading_db = "Database"
+
+known_tf = ["tensorflow", "keras"]
+import_heading_tf = "Tensorflow"
+
+known_torch = ["torch", "torchdata", "torchvision", "pytorch_lightning"]
+import_heading_torch = "Torch"
+
+known_jax = ["jax", "haiku", "flax", "optax", "jraph", "chex", "jaxopt"]
+import_heading_jax = "JAX"
+
+known_types = ["typing", "types", "jaxtyping", "numpy.typing"]
+import_heading_types = "Types"
+
+known_config = ["config", "settings", "cfg", "smile_config"]
+import_heading_config = "Config"
+
+known_math = ["numpy", "scipy", "sklearn", "pandas"]
+import_heading_math = "Math"
+
+known_plot = ["matplotlib"]
+import_heading_plot = "Plot"
+
+import_heading_thirdparty = "Others"
+
+import_heading_localfolder = "Local"
+known_localfolder = ["sites", "src"]
+
+import_heading_utils = "Utils"
+known_utils = ["tqdm", "rich"]
+
+sections = ["FUTURE", "FIRSTPARTY", "STDLIB", "TYPES", "UTILS", "DB", "MATH", "PLOT", "TF", "TORCH", "JAX", "CONFIG", "THIRDPARTY", "LOCALFOLDER"]
+
+
+[tool.pyright]
+pythonVersion = "3.10"
+extraPaths = [
+    "__pypackages__/3.10/lib",
+]
+
+exclude = [
+    "**/__pycache__",
+]
+reportMissingTypeStubs = "information"
+
+useLibraryCodeForTypes = true
+
+[tool.pdm]
+
+[project]
+name = "zebrafish"
+version = "2022"
+description = "zebrafish"
+authors = [
+    {name = "Nasy", email = "nasyxx+git@gmail.com"},
+]
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = [
+    "torch>=1.13.1",
+    "tqdm>=4.64.1",
+    "dicom2nifti>=2.4.7",
+    "scikit-image>=0.14",
+    "medpy>=0.4.0",
+    "scipy>=1.9.3",
+    "batchgenerators>=0.24",
+    "numpy>=1.24.1",
+    "sklearn>=0.0.post1",
+    "SimpleITK>=2.2.1",
+    "pandas>=1.5.2",
+    "requests>=2.28.1",
+    "nibabel>=4.0.2",
+    "tifffile>=2022.10.10",
+    "matplotlib>=3.6.2",
+    "nnunet @ file:///${PROJECT_ROOT}/nnUNet_repo",
+    "smile-config>=0.9.12",
+]
+
+[build-system]
+requires = ["pdm-pep517>=1.0.0"]
+build-backend = "pdm.pep517.api"

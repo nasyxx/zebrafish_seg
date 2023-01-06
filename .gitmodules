@@ -1,0 +1,6 @@
+[submodule "nnUNet"]
+	path = nnUNet
+	url = https://github.com/MIC-DKFZ/nnUNet.git
+[submodule "nnUNet_repo"]
+	path = nnUNet_repo
+	url = https://github.com/MIC-DKFZ/nnUNet.git
