@@ -109,3 +109,38 @@ If you use multiple GPUs, simply change the ~-tr nnUNetTrainerV2~ to ~-tr nnUNet
 Run the following shell commands to convert the nii files to tif files.
 
 ~pdm run python -m src.dc --tot in_=path/to/input_nii out_=path/to/output_tif~
+
+* Complete help buffer
+
+#+begin_src sh
+  > python config.py --help
+
+  usage: config.py [-h] [--task TASK] [--name NAME] [--postfix POSTFIX] [--database DATABASE] [--raw RAW] [--preprocessed PREPROCESSED]
+                   [--results RESULTS] [--cropped CROPPED] [--ori ORI] [--seg SEG] [--space SPACE] [--tod | --no-tod] [--tot | --no-tot] [--in_ IN_]
+                   [--out_ OUT_] [--raw_ RAW_] [--preprocessed_ PREPROCESSED_] [--results_ RESULTS_]
+
+  Configuration for zebrafish.
+
+  options:
+    -h, --help            show this help message and exit
+    --task TASK           nnUNet task ID. (default: 777)
+    --name NAME           nnUNet task name (default: Task777_Zebrafish)
+    --postfix POSTFIX     - (default: )
+    --database DATABASE   Dataset base path (default: data/)
+    --raw RAW             nnUNet raw data path (default: raw/)
+    --preprocessed PREPROCESSED
+                          nnUNet preprocessed data path (default: preprocessed/)
+    --results RESULTS     nnUNet results path (default: results/)
+    --cropped CROPPED     nnUNet cropped path (default: cropped/)
+    --ori ORI             Original photo dir. (default: data/ori/)
+    --seg SEG             Segmented dir. (default: data/segmented/)
+    --space SPACE         Distance of each dim of the one pixel (T, H, W) (default: 1,1,1)
+    --tod, --no-tod       Convert tif to dataset? (default: True)
+    --tot, --no-tot       Convert nii back to tif? (default: True)
+    --in_ IN_             Dir of result of nii.gz (default: )
+    --out_ OUT_           Dir of results of tif dir (default: )
+    --raw_ RAW_           Alias, left empty (default: data/raw/)
+    --preprocessed_ PREPROCESSED_
+                          Alias, left empty (default: data/preprocessed/)
+    --results_ RESULTS_   Alias, left empty (default: data/results/)
+#+end_src
