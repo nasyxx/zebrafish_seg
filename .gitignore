@@ -1,5 +1,6 @@
 data/*
 !data/.keep
+./env.sh
 
 # Created by https://www.toptal.com/developers/gitignore/api/pytorch,python,emacs,macos,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=pytorch,python,emacs,macos,linux

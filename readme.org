@@ -1,0 +1,111 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:{} arch:headline
+#+options: author:t broken-links:mark c:nil creator:nil
+#+options: d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t num:t
+#+options: p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
+#+options: timestamp:t title:t toc:t todo:t |:t
+#+title: Zebrafish
+#+date: <2023-01-08 Sun>
+#+author: Nasy
+#+email: nasyxx@gmail.com
+#+language: en
+#+select_tags: export
+#+exclude_tags: noexport
+#+creator: Emacs 30.0.50 (Org mode 9.6)
+#+cite_export:
+
+* Requirments
+
++ Self :: Clone this repo with submodules.
+  - ~git clone --recursive git@github.com:nasyxx/zebrafish_seg.git~
++ Python and nnUNet :: *Require python >= 3.10 with GPUs.*
+  - Run the following shell commands.
+  - ~python -m pip install pdm~  # for python project management.
+  - ~pdm install~  # install python dependencies.
++ Data :: Raw and segmented tif files.
+  - Default raw data folder should in ~data/ori~.  You can change it with the =ori= property of =Conf= class in the ~config.py~ file or using command line option =--ori path/to/raw=.
+  - Default segmented data folder should in ~data/seg~.  You can change it with the =seg= property of =Conf= class in the ~config.py~ or using command line option =--seg path/to/seg=.
+
+
+* Usage
+
++ Input
+  - 3d tif files with the shape =(Height, Weight, T)=
++ Output
+  - nnUNet MSD files
+  - See: https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/dataset_conversion.md
+
+** Train
+
+*** Data conversion
+
+Run the following shell commands to convert data with default folders:
+
+~pdm run python -m src.dc --tod~
+
+Run the following shell commands to convert data with custom folders:
+
+~pdm run python -m src.dc --tod --ori path/to/raw --seg path/to/seg --database path/to/database_folder~
+
+*** Shell env
+
+After data conversion, you should see a ~env.sh~ file in the root folder.  Run the following shell command to source it and set the nnUNet env.
+
+~source env.sh~
+
+The default of it should be like:
+
+#+begin_src sh
+  export nnUNet_raw_data_base=data/raw/
+  export nnUNet_preprocessed=data/preprocessed/
+  export RESULTS_FOLDER=data/results/
+#+end_src
+
+See here https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/setting_up_paths.md for nnUNet env.
+
+*** Train
+
+Run the following shell commands to train the model.
+
+~pdm run nnUNet_train 3d_fullres nnUNetTrainerV2 777 0~
+
+If you use multiple GPUs, you can run the following shell commands to train the model.
+
+~pdm run nnUNet_train_DP 2d nnUNetTrainerV2_DP 777 0 -gpus 2 --dbs~
+
+The results should be in the ~data/results~ folder by default.
+
++  nnUNet_train :: The train entry point.
++ 3d_fullres :: The model class.  Can be =2d=, =3d_fullres=, =3d_lowres= and =3d_cascade_fullres=.  See here: https://github.com/MIC-DKFZ/nnUNet#2d-u-net
++ nnUNetTrainerV2 :: The trainer class.
++ 777 :: Task ID.  Should geater than 500.  You can change it in ~config.py~ or using command line option =--task=777=.
++ 0 :: Fold.  Should be 0, 1, 2, 3, 4.
+
+Here is the nnUNet train example:
+
++ https://github.com/MIC-DKFZ/nnUNet#examples
++ https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/training_example_Hippocampus.md
++ https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/inference_example_Prostate.md
+
+** Inference
+
+The pipeline of inference is: Test Data conversion from tif to nii=>Inference=>Data conversion from nii back to tif.
+
+*** Data conversion
+
+It's the same as the train data conversion.
+
+*** Inference
+
+See in nnUNet: https://github.com/MIC-DKFZ/nnUNet#run-inference
+
+Thus, you can run this command to inference:
+
+~pdm run nnUNet_predict -i path/to/converted/test/folder -o path/to/output -t 777 -m 3d_fullres -tr nnUNetTrainerV2 -m 2d~
+
+If you use multiple GPUs, simply change the ~-tr nnUNetTrainerV2~ to ~-tr nnUNetTrainerV2_DP~.
+
+*** From nii to tif
+
+Run the following shell commands to convert the nii files to tif files.
+
+~pdm run python -m src.dc --tot in_=path/to/input_nii out_=path/to/output_tif~

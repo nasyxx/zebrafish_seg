@@ -35,17 +35,29 @@ license  : GPL-3.0+
 
 Data converter.
 """
+# Standard Library
 import os
-from config import config, Conf
 from pathlib import Path
-from nnunet.utilities.file_conversions import convert_3d_tiff_to_nifti
-from nnunet.dataset_conversion.utils import generate_dataset_json
-from tqdm import tqdm
+
+# Utils
 from rich import print
+from rich.prompt import Confirm
+from tqdm import tqdm
+
+# Config
+from config import Conf, config
+
+# Others
+import tifffile
+from nnunet.dataset_conversion.utils import generate_dataset_json
+from nnunet.utilities.file_conversions import (
+    convert_3d_segmentation_nifti_to_tiff,
+    convert_3d_tiff_to_nifti,
+)
 
 
-def main(conf: Conf) -> None:
-    """Main function."""
+def to_dataset(conf: Conf) -> None:
+    """Convert to dataseit."""
     dbase = f"{conf.raw_}nnUNet_raw_data/{conf.name}"
     target_imtr = f"{dbase}/imagesTr"
     target_imts = f"{dbase}/imagesTs"
@@ -60,6 +72,8 @@ def main(conf: Conf) -> None:
     ims = sorted(Path(conf.ori).glob("*.tif"))
     lbs = sorted(Path(conf.seg).glob("*.tif"))
 
+    space = tuple(conf.space.split(","))
+
     # Train
     print("Converting training data...")
     for tr, ts in zip(tqdm(ims[:-5]), lbs[:-5]):
@@ -70,14 +84,14 @@ def main(conf: Conf) -> None:
         convert_3d_tiff_to_nifti(
             [tr.as_posix()],
             f"{target_imtr}/{uni_name}",
-            (999, 1, 1),
+            space,
             transform=lambda x: x[1:],
             is_seg=False,
         )
         convert_3d_tiff_to_nifti(
             [ts.as_posix()],
             f"{target_lbtr}/{uni_name}",
-            (999, 1, 1),
+            space,
             transform=lambda x: (x == 255).astype(int),
             is_seg=True,
         )
@@ -92,14 +106,14 @@ def main(conf: Conf) -> None:
         convert_3d_tiff_to_nifti(
             [tr.as_posix()],
             f"{target_imts}/{uni_name}",
-            (999, 1, 1),
+            space,
             transform=lambda x: x[1:],
             is_seg=False,
         )
         convert_3d_tiff_to_nifti(
             [ts.as_posix()],
             f"{target_lbts}/{uni_name}",
-            (999, 1, 1),
+            space,
             transform=lambda x: (x == 255).astype(int),
             is_seg=True,
         )
@@ -114,5 +128,22 @@ def main(conf: Conf) -> None:
     )
 
 
+def to_tiff(in_: str, out_: str) -> None:
+    """From nii To tiff."""
+    for nii in tqdm(tuple(Path(in_).glob("*.nii.gz"))):
+        base = Path(nii.stem).stem
+        convert_3d_segmentation_nifti_to_tiff(nii.as_posix(), f"{out_}/{base}.tif")
+
+        tifffile.imwrite(f"{out_}/{base}.tif", tifffile.imread(f"{out_}/{base}.tif") * 255)
+
+
 if __name__ == "__main__":
-    main(config)
+    print(config)
+
+    if config.tod:
+        if Confirm.ask("Convert to dataset?"):
+            to_dataset(config)
+
+    if config.tot and config.in_, config.out_:
+        if Confirm.ask("Convert to tiff?"):
+            to_tiff(config.in_, config.out_)
