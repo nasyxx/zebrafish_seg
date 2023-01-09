@@ -85,7 +85,7 @@ def to_dataset(conf: Conf) -> None:
             [tr.as_posix()],
             f"{target_imtr}/{uni_name}",
             space,
-            transform=lambda x: x[1:],
+            transform=lambda x: x[1:],  # NOTE: We igoore the first slice in image, since it has 184 slice vs label has 183.
             is_seg=False,
         )
         convert_3d_tiff_to_nifti(
@@ -107,7 +107,7 @@ def to_dataset(conf: Conf) -> None:
             [tr.as_posix()],
             f"{target_imts}/{uni_name}",
             space,
-            transform=lambda x: x[1:],
+            transform=lambda x: x[1:],  # NOTE: We igoore the first slice in image, since it has 184 slice vs label has 183.
             is_seg=False,
         )
         convert_3d_tiff_to_nifti(
