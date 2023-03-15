@@ -144,6 +144,6 @@ if __name__ == "__main__":
         if Confirm.ask("Convert to dataset?"):
             to_dataset(config)
 
-    if config.tot and config.in_, config.out_:
+    if config.tot and config.in_ and config.out_:
         if Confirm.ask("Convert to tiff?"):
             to_tiff(config.in_, config.out_)
